@@ -1,33 +1,33 @@
-import { Injectable } from '@angular/core';
-import {WeatherService} from "./weather.service";
+import { Injectable } from "@angular/core";
+import { BehaviorSubject, Observable } from "rxjs";
 
-export const LOCATIONS : string = "locations";
+export const LOCATIONS: string = "locations";
 
 @Injectable()
 export class LocationService {
+  locations$: Observable<string[]>;
 
-  locations : string[] = [];
+  private locations = new BehaviorSubject<string[]>([]);
 
-  constructor(private weatherService : WeatherService) {
+  constructor() {
+    this.locations$ = this.locations.asObservable();
+
     let locString = localStorage.getItem(LOCATIONS);
-    if (locString)
-      this.locations = JSON.parse(locString);
-    for (let loc of this.locations)
-      this.weatherService.addCurrentConditions(loc);
-  }
-
-  addLocation(zipcode : string) {
-    this.locations.push(zipcode);
-    localStorage.setItem(LOCATIONS, JSON.stringify(this.locations));
-    this.weatherService.addCurrentConditions(zipcode);
-  }
-
-  removeLocation(zipcode : string) {
-    let index = this.locations.indexOf(zipcode);
-    if (index !== -1){
-      this.locations.splice(index, 1);
-      localStorage.setItem(LOCATIONS, JSON.stringify(this.locations));
-      this.weatherService.removeCurrentConditions(zipcode);
+    if (locString) {
+      this.locations.next(JSON.parse(locString));
     }
+  }
+
+  addLocation(zipcode: string) {
+    const addedLocations = [...this.locations.value, zipcode];
+    this.locations.next(addedLocations);
+    localStorage.setItem(LOCATIONS, JSON.stringify(addedLocations));
+  }
+
+  removeLocation(zipcode: string) {
+    const locationsValue = this.locations.value;
+
+    this.locations.next(locationsValue.filter((loc) => loc !== zipcode));
+    localStorage.setItem(LOCATIONS, JSON.stringify(this.locations.value));
   }
 }
