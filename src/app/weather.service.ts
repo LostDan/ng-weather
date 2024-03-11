@@ -1,7 +1,8 @@
 import { DestroyRef, Injectable, Signal, inject, signal } from "@angular/core";
 import { Observable } from "rxjs";
+import { tap } from "rxjs/operators";
 
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ConditionsAndZip } from "./conditions-and-zip.type";
 import { CurrentConditions } from "./current-conditions/current-conditions.type";
@@ -22,18 +23,25 @@ export class WeatherService {
     this.locationsChanges();
   }
 
+  // Adding error handler in case user searches for a non existing zipcode
   addCurrentConditions(zipcode: string): void {
     // Here we make a request to get the current conditions data from the API. Note the use of backticks and an expression to insert the zipcode
     this.http
       .get<CurrentConditions>(
         `${WeatherService.URL}/weather?zip=${zipcode},us&units=imperial&APPID=${WeatherService.APPID}`
       )
-      .subscribe((data) =>
-        this.currentConditions.update((conditions) => [
-          ...conditions,
-          { zip: zipcode, data },
-        ])
-      );
+      .subscribe({
+        next: (data) => {
+          this.currentConditions.update((conditions) => [
+            ...conditions,
+            { zip: zipcode, data },
+          ]);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.locationService.removeLocation(zipcode);
+          throw error;
+        },
+      });
   }
 
   removeCurrentConditions(zipcode: string) {
@@ -74,15 +82,20 @@ export class WeatherService {
 
   private locationsChanges() {
     this.locationService.locations$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((locations) => {
-        for (let loc of locations)
-          if (!this.currentConditions().some((cond) => cond.zip === loc))
-            this.addCurrentConditions(loc);
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        tap({
+          next: (locations) => {
+            for (let loc of locations)
+              if (!this.currentConditions().some((cond) => cond.zip === loc))
+                this.addCurrentConditions(loc);
 
-        for (let cond of this.currentConditions())
-          if (!locations.some((loc) => loc === cond.zip))
-            this.removeCurrentConditions(cond.zip);
-      });
+            for (let cond of this.currentConditions())
+              if (!locations.some((loc) => loc === cond.zip))
+                this.removeCurrentConditions(cond.zip);
+          },
+        })
+      )
+      .subscribe();
   }
 }
