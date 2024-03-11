@@ -19,6 +19,9 @@ export class LocationService {
   }
 
   addLocation(zipcode: string) {
+    if (this.locations.value.some((loc) => loc === zipcode)) {
+      return;
+    }
     const addedLocations = [...this.locations.value, zipcode];
     this.locations.next(addedLocations);
     localStorage.setItem(LOCATIONS, JSON.stringify(addedLocations));

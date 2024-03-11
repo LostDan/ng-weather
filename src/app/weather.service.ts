@@ -86,9 +86,13 @@ export class WeatherService {
         takeUntilDestroyed(this.destroyRef),
         tap({
           next: (locations) => {
-            for (let loc of locations)
-              if (!this.currentConditions().some((cond) => cond.zip === loc))
-                this.addCurrentConditions(loc);
+            const uniqueLocations = [...new Set(locations)];
+            for (let loc of uniqueLocations) {
+              const existingCondition = this.currentConditions().some(
+                (cond) => cond.zip === loc
+              );
+              if (!existingCondition) this.addCurrentConditions(loc);
+            }
 
             for (let cond of this.currentConditions())
               if (!locations.some((loc) => loc === cond.zip))
