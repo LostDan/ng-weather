@@ -25,4 +25,9 @@ export class CacheService {
   setItem<T>(key: string, data: T) {
     localStorage.setItem(key, JSON.stringify(data));
   }
+
+  // This is used to handle the timer during the session to test the cache
+  setCacheTimer(seconds: number) {
+    this.cacheTime = seconds;
+  }
 }

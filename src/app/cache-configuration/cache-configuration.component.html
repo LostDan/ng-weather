@@ -1,0 +1,10 @@
+<!-- Added this tiny component to handle the cache duration during the session. 
+    Refreshing the page will reset the timer and use the injectionToken provided in the app.module -->
+
+Cache duration
+<input
+  placeholder="Enter time in seconds"
+  type="number"
+  [(ngModel)]="cacheTime"
+/>
+<button (click)="setTimer(cacheTime)">Change</button>
