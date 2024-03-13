@@ -1,6 +1,6 @@
 <div class="tabs-container">
   <span
-    [ngClass]="{ 'tab--active': tab == activeComponent }"
+    [ngClass]="{ 'tab--active': tab === activeTab }"
     class="tab"
     (click)="activateTab(tab)"
     *ngFor="let tab of tabs; let index = index"
@@ -9,7 +9,9 @@
     <button class="tab__close" (click)="removeTab(tab, index)">&times;</button>
   </span>
 </div>
-<ng-template
-  [ngTemplateOutlet]="activeComponent.templateRef"
-  [ngTemplateOutletContext]="{ content: activeComponent.content }"
-></ng-template>
+<div class="tab-content">
+  <ng-template
+    [ngTemplateOutlet]="activeTab.templateRef"
+    [ngTemplateOutletContext]="{ content: activeTab.content }"
+  />
+</div>

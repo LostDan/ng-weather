@@ -20,24 +20,25 @@ export class TabsComponent implements AfterContentInit {
   @ContentChildren(TabDirective) tabs!: QueryList<TabDirective>;
 
   @Output() removedTab = new EventEmitter<TabDirective>();
-  activeComponent!: TabDirective;
+
+  activeTab!: TabDirective;
 
   ngAfterContentInit() {
-    this.activeComponent = this.tabs.first;
+    this.activeTab = this.tabs.first;
   }
 
   removeTab(tab: TabDirective, index: number) {
     this.removedTab.emit(tab);
-    if (tab === this.activeComponent) {
+    if (tab === this.activeTab) {
       if (index > 0) {
-        this.activeComponent = this.tabs.toArray()[index - 1];
+        this.activeTab = this.tabs.toArray()[index - 1];
       } else {
-        this.activeComponent = this.tabs.toArray()[1];
+        this.activeTab = this.tabs.toArray()[1];
       }
     }
   }
 
   activateTab(tab: TabDirective) {
-    this.activeComponent = tab;
+    this.activeTab = tab;
   }
 }
