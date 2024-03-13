@@ -13,7 +13,7 @@ import { CacheService } from "app/cache.service";
 })
 export class CacheConfigurationComponent {
   cacheTime: number;
-  private cacheService = inject(CacheService);
+  cacheService = inject(CacheService);
 
   setTimer(seconds: number) {
     this.cacheService.setCacheTimer(seconds);

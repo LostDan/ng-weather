@@ -3,7 +3,7 @@ import { CACHE_TIME } from "./app.module";
 
 @Injectable()
 export class CacheService {
-  private cacheTime: number = inject(CACHE_TIME);
+  cacheTime: number = inject(CACHE_TIME);
 
   getItem(key: string) {
     const item = JSON.parse(localStorage.getItem(key));
